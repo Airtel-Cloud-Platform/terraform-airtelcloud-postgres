@@ -1,0 +1,37 @@
+# Secrets -- real values only ever live in these, never in tracked .tf files
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+!terraform.tfvars.example
+
+# State -- can contain plaintext secrets (e.g. postgres password, api keys
+# passed through as resource attributes) even when the config itself is clean
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Plan files -- a saved plan can also embed sensitive values
+*.tfplan
+*.plan
+
+# Provider binaries / init cache
+.terraform/
+.terraform.lock.hcl
+
+# Local backend/override files -- often used to point at personal
+# credentials or a local backend during testing
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Crash logs -- can dump provider config including secrets
+crash.log
+crash.*.log
+
+# Editor/OS cruft
+.DS_Store
+*.swp
