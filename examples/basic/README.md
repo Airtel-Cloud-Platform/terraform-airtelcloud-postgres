@@ -6,7 +6,7 @@ This example provisions a standalone PostgreSQL cluster using the module from th
 
 - Single cluster creation
 - Required credentials, flavor, storage, and zone
-- Security group CIDR allow list
+- Custom CIDR allow list using the provider's `custom_cidr` argument
 - Minimal optional inputs
 
 ## Files

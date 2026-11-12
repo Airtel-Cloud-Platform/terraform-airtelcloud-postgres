@@ -15,7 +15,7 @@ v1 supports create, read, import, and delete. Changing configuration forces a ne
 * Optional PostgreSQL extensions
 * Optional labels
 * Optional backup configuration
-* Security group CIDR allow list
+* Provider-compatible VPC/subnet and custom CIDR network access
 * Configurable network and storage types
 * Create and delete timeouts
 * Supports importing existing PostgreSQL clusters
@@ -25,7 +25,7 @@ v1 supports create, read, import, and delete. Changing configuration forces a ne
 | Name        | Version  |
 | ----------- | -------- |
 | Terraform   | >= 1.5   |
-| airtelcloud | >= 1.2.6 |
+| airtelcloud | = 2.0.0  |
 
 ## Usage
 
@@ -49,9 +49,7 @@ module "postgres" {
   storage_size      = 200
   availability_zone = "S1"
 
-  security_group = {
-    allowed_ips = ["192.168.1.0/24"]
-  }
+  custom_cidr = ["192.168.1.0/24"]
 }
 ```
 
@@ -78,6 +76,9 @@ module "postgres" {
 
   high_availability = true
   num_replicas      = 1
+  vpc               = "copper-vpc1"
+  subnet            = "temporal-subnet"
+  custom_cidr       = ["192.168.1.0/24"]
 
   is_superuser = false
   network_type = "private"
@@ -93,10 +94,6 @@ module "postgres" {
     retention         = 15
     schedule_time    = "02:00"
     schedule_day     = "Monday"
-  }
-
-  security_group = {
-    allowed_ips = ["192.168.1.0/24"]
   }
 
   timeouts = {
@@ -118,7 +115,9 @@ module "postgres" {
 | `compute_size`      | PostgreSQL compute flavor name.                                                              | `string`       | Yes      |
 | `storage_size`      | Data volume size in GB. Minimum 200 GB.                                                      | `number`       | Yes      |
 | `availability_zone` | Availability zone code, for example `S1`.                                                    | `string`       | Yes      |
-| `security_group`    | Security group configuration containing allowed client CIDRs.                                | `object`       | Yes      |
+| `vpc`               | VPC name used to resolve the subnet.                                                          | `string`       | No*      |
+| `subnet`            | Subnet name within the VPC.                                                                   | `string`       | No*      |
+| `custom_cidr`       | Custom CIDRs allowed to connect.                                                              | `list(string)` | No*      |
 | `description`       | Cluster description.                                                                         | `string`       | No       |
 | `high_availability` | Enables primary-standby high availability. Defaults to `false`.                              | `bool`         | No       |
 | `num_replicas`      | Number of standby replicas. Defaults to `0`. Must be 1–10 when high availability is enabled. | `number`       | No       |
@@ -130,17 +129,17 @@ module "postgres" {
 | `backup`            | Backup configuration.                                                                        | `object`       | No       |
 | `timeouts`          | Create and delete operation timeouts. Defaults to 30 minutes.                                | `object`       | No       |
 
-### Security Group
+### Network Access
 
-The `security_group` input requires at least one CIDR block:
+Set `custom_cidr`, or set both `vpc` and `subnet`. Both forms can be used together:
 
 ```hcl
-security_group = {
-  allowed_ips = [
-    "192.168.1.0/24"
-  ]
-}
+vpc         = "copper-vpc1"
+subnet      = "temporal-subnet"
+custom_cidr = ["192.168.1.0/24"]
 ```
+
+`vpc` and `subnet` must be set together. The provider resolves the subnet's IPv4 address space and adds it to the allowed IPs.
 
 ### Backup
 
@@ -179,20 +178,22 @@ The default timeout is 30 minutes.
 
 ## Outputs
 
-| Name                | Description                                               |
-| ------------------- | --------------------------------------------------------- |
-| `id`                | PostgreSQL cluster UUID.                                  |
-| `cluster_name`      | Configured cluster name.                                  |
-| `version`           | PostgreSQL major version.                                 |
-| `database_name`     | Initial database name.                                    |
-| `postgres_username` | PostgreSQL admin username.                                |
-| `status`            | Current cluster status.                                   |
-| `topology`          | Resolved topology: `standalone` or `primary-standby`.     |
-| `num_replicas`      | Standby replica count.                                    |
-| `availability_zone` | Availability zone.                                        |
-| `created_at`        | Cluster creation timestamp.                               |
-| `connection_string` | PostgreSQL connection string. The API masks the password. |
-| `postgres`          | Complete/selected PostgreSQL cluster attributes.          |
+| Name                   | Description                                               |
+| ---------------------- | --------------------------------------------------------- |
+| `id`                   | PostgreSQL cluster UUID.                                  |
+| `cluster_name`         | Configured cluster name.                                  |
+| `version`              | PostgreSQL major version.                                 |
+| `database_name`        | Initial database name.                                    |
+| `postgres_username`    | PostgreSQL admin username.                                |
+| `status`               | Current cluster status.                                   |
+| `topology`             | Resolved topology: `standalone` or `primary-standby`.     |
+| `num_replicas`         | Standby replica count.                                    |
+| `availability_zone`    | Availability zone.                                        |
+| `created_at`            | Cluster creation timestamp.                               |
+| `connection_string`    | PostgreSQL connection string. The API masks the password. |
+| `backup_schedule_time` | Configured backup schedule time.                          |
+| `backup_schedule_day`  | Configured backup schedule day.                           |
+| `postgres`             | Complete/selected PostgreSQL cluster attributes.          |
 
 ## High Availability
 
