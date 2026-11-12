@@ -2,7 +2,7 @@ terraform {
   required_providers {
     airtelcloud = {
       source  = "Airtel-Cloud-Platform/airtelcloud"
-      version = ">= 1.2.5"
+      version = "= 2.0.0"
     }
   }
 }
@@ -30,6 +30,9 @@ module "postgres" {
   availability_zone = "S1"
   high_availability = true
   num_replicas      = 1
+  vpc               = "copper-vpc1"
+  subnet            = "temporal-subnet"
+  custom_cidr       = ["192.168.1.0/24"]
   pg_extensions     = ["pgvector"]
   labels            = ["terraform"]
 
@@ -38,10 +41,6 @@ module "postgres" {
     protection_plan = "weekly-full-daily-incr"
     schedule_time   = "02:00"
     schedule_day    = "Monday"
-  }
-
-  security_group = {
-    allowed_ips = ["192.168.1.0/24"]
   }
 
   timeouts = {

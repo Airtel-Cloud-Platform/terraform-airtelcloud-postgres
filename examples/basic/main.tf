@@ -2,7 +2,7 @@ terraform {
   required_providers {
     airtelcloud = {
       source  = "Airtel-Cloud-Platform/airtelcloud"
-      version = ">= 1.2.5"
+      version = "= 2.0.0"
     }
   }
 }
@@ -28,7 +28,5 @@ module "postgres" {
   storage_size      = 200
   availability_zone = "S1"
 
-  security_group = {
-    allowed_ips = ["192.168.1.0/24"]
-  }
+  custom_cidr = ["192.168.1.0/24"]
 }

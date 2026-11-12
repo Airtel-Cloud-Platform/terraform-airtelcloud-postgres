@@ -53,20 +53,32 @@ output "connection_string" {
   value       = airtelcloud_postgres.this.connection_string
 }
 
+output "backup_schedule_time" {
+  description = "Configured backup schedule time."
+  value       = try(airtelcloud_postgres.this.backup.schedule_time, null)
+}
+
+output "backup_schedule_day" {
+  description = "Configured backup schedule day."
+  value       = try(airtelcloud_postgres.this.backup.schedule_day, null)
+}
+
 output "postgres" {
   description = "Selected cluster attributes for downstream modules."
 
   value = {
-    id                = airtelcloud_postgres.this.id
-    cluster_name      = airtelcloud_postgres.this.cluster_name
-    version           = airtelcloud_postgres.this.version
-    database_name     = airtelcloud_postgres.this.database_name
-    postgres_username = airtelcloud_postgres.this.postgres_username
-    status            = airtelcloud_postgres.this.status
-    topology          = airtelcloud_postgres.this.topology
-    num_replicas      = airtelcloud_postgres.this.num_replicas
-    availability_zone = airtelcloud_postgres.this.availability_zone
-    created_at        = airtelcloud_postgres.this.created_at
-    connection_string = airtelcloud_postgres.this.connection_string
+    id                   = airtelcloud_postgres.this.id
+    cluster_name         = airtelcloud_postgres.this.cluster_name
+    version              = airtelcloud_postgres.this.version
+    database_name        = airtelcloud_postgres.this.database_name
+    postgres_username    = airtelcloud_postgres.this.postgres_username
+    status               = airtelcloud_postgres.this.status
+    topology             = airtelcloud_postgres.this.topology
+    num_replicas         = airtelcloud_postgres.this.num_replicas
+    availability_zone    = airtelcloud_postgres.this.availability_zone
+    created_at           = airtelcloud_postgres.this.created_at
+    connection_string    = airtelcloud_postgres.this.connection_string
+    backup_schedule_time = try(airtelcloud_postgres.this.backup.schedule_time, null)
+    backup_schedule_day  = try(airtelcloud_postgres.this.backup.schedule_day, null)
   }
 }

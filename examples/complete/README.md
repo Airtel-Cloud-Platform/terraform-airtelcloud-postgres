@@ -7,6 +7,7 @@ This example provisions a highly available PostgreSQL cluster using most module 
 - High availability with a standby replica
 - Backup schedule and protection plan
 - Extensions and labels
+- VPC/subnet selection and a custom CIDR using the provider's network arguments
 - Resource timeouts
 
 ## Files

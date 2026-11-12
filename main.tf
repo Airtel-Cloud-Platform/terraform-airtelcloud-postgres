@@ -1,9 +1,3 @@
-locals {
-  security_group_config = {
-    allowed_ips = [for ip in var.security_group.allowed_ips : ip]
-  }
-}
-
 resource "airtelcloud_postgres" "this" {
   cluster_name      = var.cluster_name
   description       = var.description
@@ -19,9 +13,12 @@ resource "airtelcloud_postgres" "this" {
   is_superuser      = var.is_superuser
   network_type      = var.network_type
   storage_type      = var.storage_type
+  vpc               = var.vpc
+  subnet            = var.subnet
+  custom_cidr       = var.custom_cidr
   pg_extensions     = var.pg_extensions
   labels            = var.labels
-  security_group    = local.security_group_config
+  backup            = var.backup
 
   dynamic "timeouts" {
     for_each = var.timeouts == null ? [] : [var.timeouts]

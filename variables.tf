@@ -172,23 +172,38 @@ variable "labels" {
   default     = null
 }
 
-variable "security_group" {
-  description = "Allowed client CIDRs. Forces a new resource."
-
-  type = object({
-    allowed_ips = list(string)
-  })
+variable "vpc" {
+  description = "VPC name used to resolve subnet. Set with subnet when custom_cidr is omitted."
+  type        = string
+  default     = null
 
   validation {
-    condition     = length(var.security_group.allowed_ips) > 0
-    error_message = "security_group.allowed_ips must contain at least one CIDR."
+    condition     = var.vpc == null || length(trim(var.vpc, " ")) > 0
+    error_message = "vpc cannot be empty when set."
   }
+}
+
+variable "subnet" {
+  description = "Subnet name within vpc. Set with vpc when custom_cidr is omitted."
+  type        = string
+  default     = null
 
   validation {
-    condition = alltrue([
-      for ip in var.security_group.allowed_ips : length(trim(ip, " ")) > 0
+    condition     = var.subnet == null || length(trim(var.subnet, " ")) > 0
+    error_message = "subnet cannot be empty when set."
+  }
+}
+
+variable "custom_cidr" {
+  description = "Custom CIDRs sent as allowed client IPs. Required unless both vpc and subnet are set."
+  type        = list(string)
+  default     = null
+
+  validation {
+    condition = var.custom_cidr == null || alltrue([
+      for cidr in var.custom_cidr : length(trim(cidr, " ")) > 0
     ])
-    error_message = "security_group.allowed_ips cannot contain empty values."
+    error_message = "custom_cidr cannot contain empty values."
   }
 }
 
